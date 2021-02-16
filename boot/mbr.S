@@ -1,15 +1,15 @@
 ;主引导程序MBR
 %include "boot.inc"
 SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移交控制权的地方
-	mov ax,cs
-	mov ds,ax
-	mov es,ax
-	mov ss,ax
-	mov fs,ax
-	mov fs,ax
-	mov sp,0x7c00
+	mov ax,cs  ;cs = code segment register
+    mov ds,ax  ;ds = data segment register
+    mov es,ax  ;es = extra segment register
+    mov ss,ax  ;ss = stack segment register
+    mov fs,ax  ;fs = flag segment register 
 
-	;gs寄存器用于存储显存的地址段从0x8000开始
+	mov sp,0x7c00 ;选择将栈基址放在mbr的前面，栈是向下生长的
+
+	;gs寄存器用于存储显存的地址段从0xb8000开始
     mov ax,0xb800
     mov gs,ax  
     
