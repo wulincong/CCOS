@@ -14,34 +14,35 @@ SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移�
     mov gs,ax  
     
     ;清屏
-	mov ax,0x600   ;BIOS的打印显示过程从这里读取参数  功能0x6是清屏操作
-	mov bx,0x700   
-	mov cx,0
-	mov dx,0x184f
-	int 0x10
-
+    call scream_clear
     ;操作显卡显示
-    mov byte [gs:0x00],'1'
-    mov byte [gs:0x01],0xA4
-    
-    mov byte [gs:0x02],' '
-    mov byte [gs:0x03],0xA4
-    
-    mov byte [gs:0x04],'M'
-    mov byte [gs:0x05],0xA4
-    
-    mov byte [gs:0x06],'B'
-    mov byte [gs:0x07],0xA4
-    
-    mov byte [gs:0x08],'R'
-    mov byte [gs:0x09],0xA4
+    call show_CCOS
     
     mov eax,LOADER_START_SECTOR  ; 起始扇区lba地址
     mov bx,LOADER_BASE_ADDR      ; 写入的地址
     mov cx,4                     ; 待读入的扇区数
     call rd_disk_m_16
-    mov byte [gs:0x0A],'L'
-    jmp LOADER_BASE_ADDR + 0x300
+    jmp LOADER_BASE_ADDR
+
+scream_clear:
+    mov ax,0x600  ;BIOS的打印显示过程从这里读取参数  功能0x6是清屏操作
+    mov bx,0x700
+    mov cx,0
+    mov dx,0x184f
+    int 0x10
+    ret
+
+show_CCOS:
+    mov byte [gs:0x00],'C'
+    mov byte [gs:0x01],0x07 
+    mov byte [gs:0x02],'C'
+    mov byte [gs:0x03],0x07 
+    mov byte [gs:0x04],'O'
+    mov byte [gs:0x05],0x07 
+    mov byte [gs:0x06],'S'
+    mov byte [gs:0x07],0x07 
+    ret
+
 rd_disk_m_16:
     mov esi,eax ; 备份eax
     mov di,cx   ; 备份cx
