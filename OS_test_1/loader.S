@@ -1,5 +1,19 @@
 %include "boot.inc"
+
 section loader vstart=LOADER_BASE_ADDR
+call cls
+
+call show_loader
+
+call SHOW_CURSOR
+call SHOW_CURSOR
+;call loader_start
+mov al,'S'
+call BIOS_print_char
+jmp $
+
+
+show_loader:
     mov ax,0xb80A
     mov gs,ax 
     mov byte [gs:0x00],'b'
@@ -18,4 +32,18 @@ section loader vstart=LOADER_BASE_ADDR
     mov byte [gs:0x0d],0xA4
     mov byte [gs:0x0e],'R'
     mov byte [gs:0x0f],0xA4
-    jmp $ ; 通过死循环使程序悬停在此
+    ret
+
+loader_start:
+    ;准备进入保护模式
+    ;打开A20
+    in al,0x92
+    or al,0000_0010B
+    ;out 0x92,al
+    ;加载GDT
+    ;lgdt [gdt_ptr]
+
+    ret 
+
+
+%include "util.S"

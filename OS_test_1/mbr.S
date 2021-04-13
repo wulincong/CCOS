@@ -2,33 +2,15 @@
 
 SECTION MBR vstart=0x7c00
     mov ax,0xb800
-    mov es,ax
-    call scream_clear
-    call show_CCOS
+    mov gs,ax
+    mov byte [gs:0x00],'M'
+    mov byte [gs:0x01],0x07
     mov eax,LOADER_START_SECTOR
     mov bx,LOADER_BASE_ADDR
     mov cx,4
     call rd_disk_m_16
     jmp LOADER_BASE_ADDR
 
-scream_clear:
-    mov ax,0x600
-    mov bx,0x700
-    mov cx,0
-    mov dx,0x184f
-    int 0x10
-    ret
-
-show_CCOS:
-    mov byte [es:0x00],'C'
-    mov byte [es:0x01],0x07 
-    mov byte [es:0x02],'C'
-    mov byte [es:0x03],0x07 
-    mov byte [es:0x04],'O'
-    mov byte [es:0x05],0x07 
-    mov byte [es:0x06],'S'
-    mov byte [es:0x07],0x07 
-    ret
 
 rd_disk_m_16:
     ;备份需要使用的寄存器

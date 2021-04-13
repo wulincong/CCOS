@@ -1,5 +1,6 @@
 ;主引导程序MBR
 %include "boot.inc"
+
 SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移交控制权的地方
 	mov ax,cs  ;cs = code segment register
     mov ds,ax  ;ds = data segment register
@@ -13,10 +14,8 @@ SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移�
     mov ax,0xb800
     mov gs,ax  
     
-    ;清屏
-    call scream_clear
     ;操作显卡显示
-    call show_CCOS
+    call show_MBR
     
     mov eax,LOADER_START_SECTOR  ; 起始扇区lba地址
     mov bx,LOADER_BASE_ADDR      ; 写入的地址
@@ -24,23 +23,14 @@ SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移�
     call rd_disk_m_16
     jmp LOADER_BASE_ADDR
 
-scream_clear:
-    mov ax,0x600  ;BIOS的打印显示过程从这里读取参数  功能0x6是清屏操作
-    mov bx,0x700
-    mov cx,0
-    mov dx,0x184f
-    int 0x10
-    ret
 
 show_CCOS:
-    mov byte [gs:0x00],'C'
+    mov byte [gs:0x00],'M'
     mov byte [gs:0x01],0x07 
-    mov byte [gs:0x02],'C'
+    mov byte [gs:0x02],'B'
     mov byte [gs:0x03],0x07 
-    mov byte [gs:0x04],'O'
+    mov byte [gs:0x04],'R'
     mov byte [gs:0x05],0x07 
-    mov byte [gs:0x06],'S'
-    mov byte [gs:0x07],0x07 
     ret
 
 rd_disk_m_16:
@@ -100,6 +90,6 @@ rd_disk_m_16:
     loop .go_on_read
     ret
 
-	times 510-($-$$) db 0
-	db 0x55,0xaa
-    
+times 510-($-$$) db 0
+db 0x55,0xaa
+
