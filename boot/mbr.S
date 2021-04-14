@@ -1,5 +1,5 @@
 ;主引导程序MBR
-%include "boot.inc"
+%include "./include/boot.inc"
 
 SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移交控制权的地方
 	mov ax,cs  ;cs = code segment register
@@ -10,13 +10,7 @@ SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移�
 
 	mov sp,0x7c00 ;选择将栈基址放在mbr的前面，栈是向下生长的
 
-	;gs寄存器用于存储显存的地址段从0xb8000开始
-    mov ax,0xb800
-    mov gs,ax  
-    
-    ;操作显卡显示
-    call show_MBR
-    
+
     mov eax,LOADER_START_SECTOR  ; 起始扇区lba地址
     mov bx,LOADER_BASE_ADDR      ; 写入的地址
     mov cx,4                     ; 待读入的扇区数
@@ -24,14 +18,6 @@ SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移�
     jmp LOADER_BASE_ADDR
 
 
-show_CCOS:
-    mov byte [gs:0x00],'M'
-    mov byte [gs:0x01],0x07 
-    mov byte [gs:0x02],'B'
-    mov byte [gs:0x03],0x07 
-    mov byte [gs:0x04],'R'
-    mov byte [gs:0x05],0x07 
-    ret
 
 rd_disk_m_16:
     mov esi,eax ; 备份eax
