@@ -1,6 +1,6 @@
 ;-------------	 loader和kernel   ----------
 
-LOADER_BASE_ADDR equ 0x900 
+LOADER_BASE_ADDR equ 0x800 
 LOADER_STACK_TOP equ LOADER_BASE_ADDR
 LOADER_START_SECTOR equ 0x2
 

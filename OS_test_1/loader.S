@@ -1,45 +1,64 @@
 %include "boot.inc"
 
 section loader vstart=LOADER_BASE_ADDR
-call cls
 
-call show_loader
+;构建gdt及其内部的描述符
+   GDT_BASE:   dd    0x00000000 
+	       dd    0x00000000
 
-call SHOW_CURSOR
-call SHOW_CURSOR
-;call loader_start
-mov al,'S'
-call BIOS_print_char
+   CODE_DESC:  dd    0x0000FFFF 
+	       dd    DESC_CODE_HIGH4
+
+   DATA_STACK_DESC:  dd    0x0000FFFF
+		     dd    DESC_DATA_HIGH4
+
+   VIDEO_DESC: dd    0x80000007	       ; limit=(0xbffff-0xb8000)/4k=0x7
+	       dd    DESC_VIDEO_HIGH4  ; 此时dpl为0
+
+   GDT_SIZE   equ   $ - GDT_BASE
+   GDT_LIMIT   equ   GDT_SIZE -	1 
+gdt_ptr dw 
+
+
+
+
+
+    call cls
+    call show_CCOS
+    call show_loader
+
+    mov si,message_a
+    mov cx,12
+    call GPU_print_string
+
+    call enter_protect_mod
+
+    mov si,protect_mod
+    mov cx,21
+    call GPU_print_string
+
+
 jmp $
 
-
-show_loader:
-    mov ax,0xb80A
-    mov gs,ax 
-    mov byte [gs:0x00],'b'
-    mov byte [gs:0x01],0xA4 ; A 表示绿色背景闪烁， 4 表示前景色为红色
-    mov byte [gs:0x02],' '
-    mov byte [gs:0x03],0xA4
-    mov byte [gs:0x04],'L'
-    mov byte [gs:0x05],0xA4
-    mov byte [gs:0x06],'O'
-    mov byte [gs:0x07],0xA4
-    mov byte [gs:0x08],'A'
-    mov byte [gs:0x09],0xA4
-    mov byte [gs:0x0a],'D'
-    mov byte [gs:0x0b],0xA4
-    mov byte [gs:0x0c],'E'
-    mov byte [gs:0x0d],0xA4
-    mov byte [gs:0x0e],'R'
-    mov byte [gs:0x0f],0xA4
+show_CCOS:
+    mov si,message
+    mov cx,16
+    call GPU_print_string
     ret
 
-loader_start:
+show_loader:
+
+    mov si,b_loader
+    mov cx,8
+    call GPU_print_string
+    ret
+
+enter_protect_mod:
     ;准备进入保护模式
     ;打开A20
     in al,0x92
     or al,0000_0010B
-    ;out 0x92,al
+    out 0x92,al
     ;加载GDT
     ;lgdt [gdt_ptr]
 
@@ -47,3 +66,7 @@ loader_start:
 
 
 %include "util.S"
+message db "Welcome to CCOS!"
+b_loader db "2 loader"
+message_a db "Hello World!"
+protect_mod db "Enter protected mode!"

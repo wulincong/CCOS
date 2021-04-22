@@ -6,6 +6,8 @@ cls:
     mov cx,0
     mov dx,0x184f
     int 0x10
+    mov bx,0
+    call SET_CURSOR
     ret
 
 ;put_int:
@@ -15,10 +17,46 @@ GPU_print_char:
 
     ret
 
-;GPU_print_string:
-;    ret
-SET_CURSOR:
+GPU_print_string:
+    ;si放置字符串内存地址
+    ;cx保存字符串数量
+        call GET_CURSOR
+        mov bx,ax
+        shr ax,4
+        add ax,0x0B800
+        mov gs,ax 
+        add bx,0xA0
+        call SET_CURSOR
+        mov di,0    ;di放置显示缓冲区索引
+    @g:
+        mov al,[si] 
+        mov [gs:di],al
+        inc di
+        mov byte [gs:di],0x07
+        inc di
+        inc si
+        loop @g 
+
     ret
+
+SET_CURSOR:
+    ;bx 存储重置的cursor位置
+    mov dx,0x3d4
+    mov al,0x0e
+    out dx,al 
+    mov dx,0x3d5
+    mov al,bh 
+    out dx,al
+
+    mov dx,0x3d4
+    mov al,0x0f
+    out dx,al 
+    mov dx,0x3d5
+    mov al,bl
+    out dx,al 
+
+    ret
+
 
 GET_CURSOR:  ;将光标地址存储在ax内
     mov dx,0x3d4
@@ -73,7 +111,7 @@ SHOW_CURSOR:
     mov bx,0
 
     mov al,[number+0x03]
-    or al,0x30
+    or al,0x30    ;0x30 = 0b00110000  相当于 + 0x30
     mov [gs:bx],al 
 
     mov al,[number+0x02]
@@ -101,8 +139,16 @@ BIOS_print_char:
     ret
 
 
-;BIOS_print_string:
-;    ret
+BIOS_print_string:
+    ps:
+    mov al,[si]
+    inc si
+    or al,al
+    jz pend
+    call BIOS_print_char
+    jmp ps 
+    pend:
+    ret
 
 ;delay:
 ;    ret

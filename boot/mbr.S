@@ -9,26 +9,32 @@ SECTION MBR vstart=0x7c00   ;把编译地址改到0x7c00处，这里是BIOS移�
     mov fs,ax  ;fs = flag segment register 
 
 	mov sp,0x7c00 ;选择将栈基址放在mbr的前面，栈是向下生长的
-
-
+    mov ax,0xb800
+    mov gs,ax
+    mov byte [gs:0x00],'G'
+    mov byte [gs:0x01],0x07
     mov eax,LOADER_START_SECTOR  ; 起始扇区lba地址
     mov bx,LOADER_BASE_ADDR      ; 写入的地址
-    mov cx,4                     ; 待读入的扇区数
+    mov cx,8                     ; 待读入的扇区数
     call rd_disk_m_16
     jmp LOADER_BASE_ADDR
 
 
 
 rd_disk_m_16:
+   ;备份需要使用的寄存器
+    ; eax=LBA 扇区号
+    ; bx=将数据写入的内存地址
+    ; cx=读入的扇区数
     mov esi,eax ; 备份eax
-    mov di,cx   ; 备份cx
-
-    ; step1:设置要读取的扇区数
-    mov dx,0x1f2
-    mov al,cl       ;al = cl = 1
-    out dx,al       ;读取的扇区数  out 第一个参数是端口地址，第二个参数是带读取的扇区数
+    mov di,cx 
     
-    mov eax,esi     ;恢复ax
+    mov dx,0x1f2
+    mov al,cl   ; = 4
+    out dx,al   ;第一个参数为端口地址，此处为0x1f2,为sector count
+                        ;第二个参数是待读取的扇区数
+    mov eax,esi  ;恢复ax
+
     
     ;step2:将LBA地址存入0x1f3~0x1f6
     mov dx,0x1f3
@@ -76,6 +82,20 @@ rd_disk_m_16:
     loop .go_on_read
     ret
 
+
+
+
 times 510-($-$$) db 0
 db 0x55,0xaa
+
+
+
+
+
+
+
+
+
+
+
 

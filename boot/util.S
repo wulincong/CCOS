@@ -1,5 +1,5 @@
 MAX_CURSOR equ 1999
-
+[bits 16]
 cls:
     mov ax,0x600  ;BIOS的打印显示过程从这里读取参数  功能0x6是清屏操作
     mov bx,0x700
@@ -84,7 +84,6 @@ SHOW_CURSOR:
 ;显卡光标在两个8位的光标寄存器中，可以通过索引寄存器的方式访问
 ;索引寄存器的端口号是 0x3d4 通过写入值来指定需要映射的寄存器，
 ;映射的数据放在端口 0x3d5 可以通过读写0x3d5改变实际寄存器的值
-    number db 0,0,0,0   ;用于储存四位光标数据
     mov ax,0x0B800
     mov gs,ax 
 
@@ -130,6 +129,7 @@ SHOW_CURSOR:
     add bx,2
     mov [gs:bx],al 
 
+    ret
 ;al是字符ascii码
 BIOS_print_char:
     mov ah,0x0E
@@ -152,3 +152,5 @@ BIOS_print_string:
 
 ;delay:
 ;    ret
+
+number db 0,0,0,0   ;用于储存四位光标数据
