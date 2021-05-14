@@ -23,8 +23,12 @@ section loader vstart=LOADER_BASE_ADDR
     SELECTOR_CODE equ (0x01<<3) + TI_GDT + RPL0
     SELECTOR_DATA equ (0x02<<3) + TI_GDT + RPL0
     SELECTOR_VIDEO equ (0x3<<3) + TI_GDT + RPL0
+    total_mem_bytes dd 0
     gdt_ptr dw GDT_LIMIT
             dd GDT_BASE
+    ards_buf times 244 db 0
+    ards_nr dw 0
+
 [bits 16]
 l_start:
 ;    mov ax,0600h
@@ -47,6 +51,25 @@ l_start:
     mov cx,12
     call GPU_print_string
 
+    ;获取内存地址
+;-----------------  int 15h ah = 0x88 获取内存大小,只能获取64M之内  ----------
+    ;int 15后，ax存入的是以kb为单位的内存容量
+    mov  ah, 0x88
+    int  0x15
+    jc .error_hlt
+    and eax,0x0000FFFF
+    ;16位乘法，被乘数是ax,积为32位.积的高16位在dx中，积的低16位在ax中
+    mov cx, 0x400     ;0x400等于1024,将ax中的内存容量换为以byte为单位
+    mul cx
+    shl edx, 16	     ;把dx移到高16位
+    or edx, eax	     ;把积的低16位组合到edx,为32位的积
+    add edx,0x100000  ;0x88子功能只会返回1MB以上的内存,故实际内存大小要加上1MB
+.mem_get_ok:
+    mov [total_mem_bytes], edx	 ;将内存换为byte单位后存入total_mem_bytes处。
+.error_hlt:		      ;出错则挂起
+    hlt
+
+    ;进入保护模式
     call enter_protect_mod
 
 
@@ -78,8 +101,8 @@ enter_protect_mod:
     jmp dword SELECTOR_CODE:p_mode_start   ;刷新流水线
 
 
-
-%include "util.S"
+;%include "Getting_E820_Memory_Map.S"
+%include "util16.S"
 
 message db "Welcome to CCOS!"
 b_loader db "2 loader"
@@ -88,16 +111,20 @@ message_a db "Hello World!"
 
 [bits 32]
 p_mode_start:
-   mov ax, SELECTOR_DATA
-   mov ds, ax
-   mov es, ax
-   mov ss, ax
-   mov esp,LOADER_STACK_TOP
-   mov ax, SELECTOR_VIDEO
-   mov gs, ax
+    mov ax, SELECTOR_DATA
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov esp,LOADER_STACK_TOP
+    mov ax, SELECTOR_VIDEO
+    mov gs, ax
+; -------------------------   加载kernel  ----------------------
+    mov eax, KERNEL_START_SECTOR
+    mov ebx, KERNEL_BIN_BASE_ADDR
+    mov ecx, 200
+    call rd_disk_m_32
 
-   mov byte [gs:160], 'P'
+    jmp $
 
-   jmp $
-
+%include "util32.S"
 protect_mod db "Enter protected mode!"
