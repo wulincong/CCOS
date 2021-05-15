@@ -64,14 +64,14 @@ l_start:
     shl edx, 16	     ;把dx移到高16位
     or edx, eax	     ;把积的低16位组合到edx,为32位的积
     add edx,0x100000  ;0x88子功能只会返回1MB以上的内存,故实际内存大小要加上1MB
-.mem_get_ok:
+  .mem_get_ok:
     mov [total_mem_bytes], edx	 ;将内存换为byte单位后存入total_mem_bytes处。
-.error_hlt:		      ;出错则挂起
+  .error_hlt:		      ;出错则挂起
     hlt
-
+    ; 设置分页
+    call setup_page
     ;进入保护模式
     call enter_protect_mod
-
 
 show_CCOS:
     mov si,message
@@ -80,7 +80,6 @@ show_CCOS:
     ret
 
 show_loader:
-
     mov si,b_loader
     mov cx,8
     call GPU_print_string

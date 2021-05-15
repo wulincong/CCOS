@@ -42,7 +42,6 @@ RPL3  equ   11b
 TI_GDT	 equ   000b
 TI_LDT	 equ   100b
 
-
 ;----------------   页表相关属性    --------------
 PG_P  equ   1b
 PG_RW_R	 equ  00b 
