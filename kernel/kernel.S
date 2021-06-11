@@ -11,7 +11,7 @@ intr_entry_table:
 
 %macro VECTOR 2
 section .text
-intr %1 entry:
+intr%1entry:
     %2 
     push intr_str
     call put_str
@@ -24,7 +24,7 @@ intr %1 entry:
     iret 
 
 section .data
-    dd intr %1 entry 
+    dd intr%1entry 
 
 %endmacro
 
@@ -59,6 +59,7 @@ VECTOR 0x1B,ZERO
 VECTOR 0x1C,ZERO
 VECTOR 0x1D,ZERO
 VECTOR 0x1E,ERROR_CODE
+VECTOR 0x1F,ZERO 
 VECTOR 0x20,ZERO
 
 
