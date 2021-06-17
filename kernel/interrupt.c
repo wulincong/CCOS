@@ -1,5 +1,8 @@
 #include "interrupt.h"
 
+static void make_idt_desc(struct gate_desc* p_gdesc, uint8_t attr, intr_handler function);
+static struct gate_desc idt[IDT_SESC_CNT];
+
 static void pic_init(){
     outb(PIC_M_CTRL, 0x11);
     outb(PIC_M_DATA, 0x20);

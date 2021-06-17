@@ -3,6 +3,7 @@
 #include "stdint.h"
 #include "global.h"
 #include "io.h"
+#include "print.h"
 
 #define IDT_SESC_CNT 0x21  //目前总共支持的中断数
 #define PIC_M_CTRL 0x20     
@@ -22,8 +23,7 @@ struct gate_desc
 
 typedef void* intr_handler;
 
-static void make_idt_desc(struct gate_desc* p_gdesc, uint8_t attr, intr_handler function);
-static struct gate_desc idt[IDT_SESC_CNT];
+
 extern intr_handler intr_entry_table[IDT_SESC_CNT];
 
 void idt_init(void);

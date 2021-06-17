@@ -48,9 +48,9 @@ l_start:
     call show_CCOS
     call show_loader
 
-    mov si,message_a
-    mov cx,12
-    call GPU_print_string
+    ;mov si,message_a
+    ;mov cx,12
+    ;call GPU_print_string
 
     ;获取内存地址
 ;-----------------  int 15h ah = 0x88 获取内存大小,只能获取64M之内  ----------
