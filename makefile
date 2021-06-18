@@ -27,4 +27,4 @@ run:
 	bochs -f bochsrc.disk
 
 clean:
-	rm  $(BOOT_DIR)/*.bin $(KERNEL_DIR)/*.bin 
+	rm  $(BOOT_DIR)/*.bin $(KERNEL_DIR)/*.bin  

@@ -1,7 +1,7 @@
 [bits 16]
 %include "./include/boot.inc"
 
-section loader vstart=LOADER_BASE_ADDR
+section loader vstart=LOADER_BASE_ADDR   ;0x800
     ;LOADER_STACK_TOP equ LOADER_BASE_ADDR
     jmp l_start
     db 0x00 
@@ -69,7 +69,7 @@ l_start:
 
 
     ;进入保护模式
-    call enter_protect_mod
+    call enter_protect_mod  ;0x0b3e
 
 show_CCOS:
     mov si,message
@@ -83,7 +83,7 @@ show_loader:
     call GPU_print_string
     ret
 
-enter_protect_mod:
+enter_protect_mod:  ;0x0b55
     ;准备进入保护模式
     ;打开A20
     in al,0x92
@@ -107,7 +107,7 @@ message_a db "Hello World!"
 
 
 [bits 32]
-p_mode_start:
+p_mode_start:  ;0008:0000000000000c7b
     mov ax, SELECTOR_DATA
     mov ds, ax
     mov es, ax
@@ -116,10 +116,10 @@ p_mode_start:
     mov ax, SELECTOR_VIDEO
     mov gs, ax
         ; 设置分页
-    call setup_page
+    call setup_page ;jmp  0008:0000000000000da3
     sgdt [gdt_ptr]
 
-    mov ebx, [gdt_ptr + 2]
+    mov ebx, [gdt_ptr + 2]  ;0008:0000000000000c95
     or dword [ebx + 0x18 + 4], 0xc0000000
     add dword [gdt_ptr + 2],0xc0000000
     add esp, 0xc0000000 

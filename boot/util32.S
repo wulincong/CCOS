@@ -88,7 +88,7 @@ rd_disk_m_32:
     ret
 
 
-setup_page:
+setup_page:    ;0008:0000000000000da3
     mov ecx, 4096 
     mov esi, 0
   .clear_page_dir:
@@ -103,12 +103,12 @@ setup_page:
     mov [PAGE_DIR_TABLE_POS + 0x0], eax
     mov [PAGE_DIR_TABLE_POS + 0xc00], eax
     sub eax, 0x1000 
-    mov [PAGE_DIR_TABLE_POS + 4094], eax
+    mov [PAGE_DIR_TABLE_POS + 4092], eax
     mov ecx, 256
     mov esi, 0
     mov edx, PG_US_S | PG_RW_W | PG_P
   .create_pte:
-    mov [ebx + esi*4],edx 
+    mov [ebx + esi*4], edx 
     add edx, 4096
     inc esi 
     loop .create_pte
